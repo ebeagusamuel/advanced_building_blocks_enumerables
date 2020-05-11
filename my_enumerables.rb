@@ -68,7 +68,7 @@ module Enumerable
 				end
 			end
 		end
-		puts ans
+		ans
 	end
 
 	def my_any?
@@ -92,9 +92,33 @@ module Enumerable
 				end
 			end
 		end
-		puts ans
+		ans
+	end
+
+	def my_none?
+		ans = false
+		if is_a?(Hash)
+			self.my_each do |key, val|
+				if yield(key, val)
+					ans = false
+					break
+				else
+					ans = true
+				end
+			end
+		else
+			self.my_each do |val|
+				if yield(val)
+					ans = false
+					break
+				else
+					ans = true
+				end
+			end
+		end
+		ans
 	end
 
 end
-x = {one: 100, two: 200, three: 300, four: 400}
-x.my_any?{ |k, v| v > 100}
+x = [20, 30, 40, 50, 60, 70, 80, 90]
+x.my_none?{ |v| v >= 100}
