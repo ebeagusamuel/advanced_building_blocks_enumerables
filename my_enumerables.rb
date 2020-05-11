@@ -71,6 +71,30 @@ module Enumerable
 		puts ans
 	end
 
+	def my_any?
+		ans = false
+		if is_a?(Hash)
+			self.my_each do |key, val|
+				if yield(key, val)
+					ans = true
+					break
+				else
+					ans = false
+				end
+			end
+		else
+			self.my_each do |val|
+				if yield(val)
+					ans = true
+					break
+				else
+					ans = false
+				end
+			end
+		end
+		puts ans
+	end
+
 end
 x = {one: 100, two: 200, three: 300, four: 400}
-x.my_all?{ |k, v| v > 100}
+x.my_any?{ |k, v| v > 100}
