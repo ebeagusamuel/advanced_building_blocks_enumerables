@@ -1,3 +1,11 @@
+# frozen_string_literal: true
+
+# rubocop : disable Metrics/ModuleLength
+# rubocop : disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+# rubocop : disable Metrics/MethodLength
+# rubocop : disable Style/Documentation
+# rubocop : disable Metrics/AbcSize
+
 module Enumerable
   def my_each
     if is_a?(Array)
@@ -142,7 +150,7 @@ module Enumerable
         return_arr.push(yield(val))
       end
     end
-    pp return_arr
+    return_arr
   end
 
   def my_inject(arg1 = nil, arg2 = nil)
@@ -165,7 +173,13 @@ module Enumerable
     acc
   end
 end
-
+# rubocop : enable Metrics/MethodLength
+# rubocop : enable Metrics/ModuleLength
+# rubocop : enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+# rubocop : enable Style/Documentation
+# rubocop : enable Metrics/AbcSize
 def multiply_els(args)
   args.my_inject { |acc, val| acc * val }
 end
+
+[1, 2, 3, 4].my_map { |v| v * 2 }
