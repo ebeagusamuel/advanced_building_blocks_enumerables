@@ -139,12 +139,12 @@ module Enumerable
 		ans
 	end
 
-	def my_map
+	def my_map(&block)
 		return_arr = []
 		my_each do |val|
-			return_arr.push(yield(val))
+			return_arr.push(block.call(val))
 		end
-		return_arr
+		pp return_arr
 	end
 
 	def my_inject(arg1 = nil, arg2 = nil)
@@ -174,4 +174,4 @@ def multiply_els(args)
 end
 
 x = [20, 30, 40, 50, 60, 50, 50, 90]
-x.my_inject{|product, n| product  n}
+x.my_map{|n| n * 2}
