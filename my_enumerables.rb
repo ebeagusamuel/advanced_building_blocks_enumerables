@@ -31,14 +31,14 @@ module Enumerable
 		return_arr = []
 		return_hash = {}
 		if is_a?(Hash)
-			self.my_each do |key, val|
+			my_each do |key, val|
 				if yield(key, val)
 					return_hash[key] = val
 				end
 			end
 			return_hash
 		else
-			self.my_each do |val|
+			my_each do |val|
 				if yield(val)
 					return_arr.push(val)
 				end
@@ -50,7 +50,7 @@ module Enumerable
 	def my_all?
 		ans = false
 		if is_a?(Hash)
-			self.my_each do |key, val|
+			my_each do |key, val|
 				if yield(key, val)
 					ans = true
 				else
@@ -59,7 +59,7 @@ module Enumerable
 				end
 			end
 		else
-			self.my_each do |val|
+			my_each do |val|
 				if yield(val)
 					ans = true
 				else
@@ -74,7 +74,7 @@ module Enumerable
 	def my_any?
 		ans = false
 		if is_a?(Hash)
-			self.my_each do |key, val|
+			my_each do |key, val|
 				if yield(key, val)
 					ans = true
 					break
@@ -83,7 +83,7 @@ module Enumerable
 				end
 			end
 		else
-			self.my_each do |val|
+			my_each do |val|
 				if yield(val)
 					ans = true
 					break
@@ -98,7 +98,7 @@ module Enumerable
 	def my_none?
 		ans = false
 		if is_a?(Hash)
-			self.my_each do |key, val|
+			my_each do |key, val|
 				if yield(key, val)
 					ans = false
 					break
@@ -107,7 +107,7 @@ module Enumerable
 				end
 			end
 		else
-			self.my_each do |val|
+			my_each do |val|
 				if yield(val)
 					ans = false
 					break
@@ -119,6 +119,59 @@ module Enumerable
 		ans
 	end
 
+	def my_count(args = nil)
+		ans = 0
+		if block_given?
+			my_each do |val|
+				if yield(val)
+					ans += 1
+				end
+			end
+		elsif args == nil
+			ans = size
+		else
+			my_each do |val|
+				if val == args
+					ans += 1
+				end
+			end
+		end
+		ans
+	end
+
+	def my_map
+		return_arr = []
+		my_each do |val|
+			return_arr.push(yield(val))
+		end
+		return_arr
+	end
+
+	def my_inject(arg1 = nil, arg2 = nil)
+		acc = nil
+		symbol = nil
+		if arg1.is_a?(Numeric)
+			acc = arg1
+			symbol = arg2 if arg2.is_a?(Symbol)
+		end
+		symbol = arg1 if arg1.is_a?(Symbol)
+		if !symbol.nil?
+			my_each do |val|
+				acc = acc ? acc.send(symbol, val) : val
+			end
+		else
+			my_each do |val|
+				acc = acc ? yield(acc, val) : val
+			end
+		end
+		acc
+	end
+
 end
-x = [20, 30, 40, 50, 60, 70, 80, 90]
-x.my_none?{ |v| v >= 100}
+
+def multiply_els(args)
+	args.my_inject{|acc, val| acc * val}
+end
+
+x = [20, 30, 40, 50, 60, 50, 50, 90]
+x.my_inject{|product, n| product  n}
