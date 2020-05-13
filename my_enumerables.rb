@@ -8,30 +8,30 @@
 
 module Enumerable
   def my_each
-    if is_a?(Array)
-      0.upto size - 1 do |val|
-        yield(self[val]) if block_given?
-      end
-    elsif is_a?(Range)
-      each do |val|
-        yield(val) if block_given?
-      end
-    else
-      hash_keys = keys
-      0.upto hash_keys.length - 1 do |num|
-        key = hash_keys[num]
-        yield(key, self[key])
+    return to_enum :my_each unless block_given?
+
+    0.upto size - 1 do |val|
+      case self.class.name
+      when 'Hash' then yield(keys[val], self[keys[val]])
+      when 'Array' then yield(self[val])
+      when 'Range' then yield(to_a[val])
       end
     end
+    self
   end
 
   def my_each_with_index
+    return to_enum :my_each unless block_given?
+
     0.upto size - 1 do |val|
       yield(self[val], val)
     end
+    self
   end
 
   def my_select
+    return to_enum :my_select unless block_given?
+
     return_arr = []
     return_hash = {}
     if is_a?(Hash)
@@ -47,76 +47,55 @@ module Enumerable
     end
   end
 
-  def my_all?
-    ans = false
-    if is_a?(Hash)
-      my_each do |key, val|
-        if yield(key, val)
-          ans = true
-        else
-          ans = false
-          break
-        end
+  def my_all?(args = nil)
+    if args.nil?
+      if block_given?
+        my_each { |val| return false unless yield(val) }
+      else
+        my_each { |val| return false unless val }
       end
+    elsif args.is_a?(Regexp)
+      my_each { |val| return false unless val.match(args) }
+    elsif args.is_a?(Module)
+      my_each { |val| return false unless val.is_a?(args) }
     else
-      my_each do |val|
-        if yield(val)
-          ans = true
-        else
-          ans = false
-          break
-        end
-      end
+      my_each { |val| return false unless val == args }
     end
-    ans
+    true
   end
 
-  def my_any?
-    ans = false
-    if is_a?(Hash)
-      my_each do |key, val|
-        if yield(key, val)
-          ans = true
-          break
-        else
-          ans = false
-        end
+  def my_any?(args = nil)
+    if args.nil?
+      if block_given?
+        my_each { |val| return true if yield(val) }
+      else
+        my_each { |val| return true if val }
       end
+    elsif args.is_a?(Regexp)
+      my_each { |val| return true if val.match(args) }
+    elsif args.is_a?(Module)
+      my_each { |val| return true if val.is_a?(args) }
     else
-      my_each do |val|
-        if yield(val)
-          ans = true
-          break
-        else
-          ans = false
-        end
-      end
+      my_each { |val| return true if val == args }
     end
-    ans
+    false
   end
 
-  def my_none?
-    ans = false
-    if is_a?(Hash)
-      my_each do |key, val|
-        if yield(key, val)
-          ans = false
-          break
-        else
-          ans = true
-        end
+  def my_none?(args = nil)
+    if args.nil?
+      if block_given?
+        my_each { |val| return true unless yield(val) }
+      else
+        my_each { |val| return true unless val }
       end
+    elsif args.is_a?(Regexp)
+      my_each { |val| return true unless val.match(args) }
+    elsif args.is_a?(Module)
+      my_each { |val| return true unless val.is_a?(args) }
     else
-      my_each do |val|
-        if yield(val)
-          ans = false
-          break
-        else
-          ans = true
-        end
-      end
+      my_each { |val| return true unless val == args }
     end
-    ans
+    false
   end
 
   def my_count(args = nil)
@@ -136,6 +115,8 @@ module Enumerable
   end
 
   def my_map(args = nil)
+    return to_enum :my_map unless block_given?
+
     return_arr = []
     if block_given? && args.is_a?(Proc)
       my_each do |val|
@@ -173,13 +154,13 @@ module Enumerable
     acc
   end
 end
-# rubocop : enable Metrics/MethodLength
+
 # rubocop : enable Metrics/ModuleLength
 # rubocop : enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+# rubocop : enable Metrics/MethodLength
 # rubocop : enable Style/Documentation
 # rubocop : enable Metrics/AbcSize
+
 def multiply_els(args)
   args.my_inject { |acc, val| acc * val }
 end
-
-[1, 2, 3, 4].my_map { |v| v * 2 }
