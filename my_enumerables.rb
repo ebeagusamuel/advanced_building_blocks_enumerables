@@ -84,18 +84,18 @@ module Enumerable
   def my_none?(args = nil)
     if args.nil?
       if block_given?
-        my_each { |val| return true unless yield(val) }
+        my_each { |val| return false if yield(val) }
       else
-        my_each { |val| return true unless val }
+        my_each { |val| return false if val }
       end
     elsif args.is_a?(Regexp)
-      my_each { |val| return true unless val.match(args) }
+      my_each { |val| return false if val.match(args) }
     elsif args.is_a?(Module)
-      my_each { |val| return true unless val.is_a?(args) }
+      my_each { |val| return false if val.is_a?(args) }
     else
-      my_each { |val| return true unless val == args }
+      my_each { |val| return false if val == args }
     end
-    false
+    true
   end
 
   def my_count(args = nil)
